@@ -85,6 +85,9 @@ func storeEvent(ctx context.Context, lagoClient *lago.Client, ev lago.EventInput
 		return fmt.Errorf("error creating event: %w", lagoerr.Wrap(err))
 	}
 
+	// Check if the event was created successfully
+	// The API does not return an error on conflict or if an event has invalid data.
+	// The API is also eventually consistent, so we need to wait a bit for the event to be created.
 	for {
 		storedEvent, err := lagoClient.Event().Get(ctx, ev.TransactionID)
 		if err != nil {
